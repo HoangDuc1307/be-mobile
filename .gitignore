@@ -1,38 +1,33 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-
-# Virtual environment
-venv/
-.venv/
-env/
-
-# Environment variables (secrets)
-.env
-
-# Django
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-media/
-staticfiles/
-
-# IDE
+# IDEs and Editors
 .idea/
 .vscode/
+*.iml
 *.swp
 *.swo
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Test / coverage
-.coverage
-htmlcov/
-.pytest_cache/
-.mypy_cache/
+# Python / Django (Root level or nested)
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+**/venv/
+**/.venv/
+**/env/
+**/.env
+**/db.sqlite3
+**/db.sqlite3-journal
+**/media/
+**/staticfiles/
+**/*.log
+
+# Android (Root level or nested)
+**/local.properties
+**/.gradle/
+**/build/
+**/captures/
+**/.externalNativeBuild
+**/.cxx/

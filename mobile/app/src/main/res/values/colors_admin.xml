@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Backgrounds / Badges -->
+    <color name="bg_light_gray">#F3F4F6</color>
+    <color name="card_bg">#FFFFFF</color>
+    
+    <!-- State Badges -->
+    <color name="badge_occupied_bg">#DEF7EC</color>
+    <color name="badge_occupied_text">#03543F</color>
+    <color name="badge_available_bg">#F3F4F6</color>
+    <color name="badge_available_text">#4B5563</color>
+    
+    <!-- Navy / Blue Theme -->
+    <color name="navy_dark">#0A0E29</color>
+    <color name="navy_blue">#1A3C8F</color>
+    <color name="navy_light">#E0E7FF</color>
+    
+    <!-- Accent colors -->
+    <color name="gray_text">#6B7280</color>
+    <color name="gray_light">#9CA3AF</color>
+
+    <!-- Invoice status -->
+    <color name="red_accent">#DC2626</color>
+    <color name="badge_unpaid_bg">#FEE2E2</color>
+    <color name="badge_unpaid_text">#DC2626</color>
+    <color name="room_unpaid_bg">#FEE2E2</color>
+    <color name="room_unpaid_text">#DC2626</color>
+    <color name="room_paid_bg">#F3F4F6</color>
+    <color name="room_paid_text">#6B7280</color>
+</resources>
