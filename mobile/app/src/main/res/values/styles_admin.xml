@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="Theme.QuanLyPhongTro.NoActionBar" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <item name="colorPrimary">@color/navy_blue</item>
-        <item name="colorPrimaryDark">@color/navy_dark</item>
-        <item name="android:windowBackground">@color/bg_screen</item>
-    </style>
-</resources>
