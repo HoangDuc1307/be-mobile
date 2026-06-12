@@ -87,36 +87,60 @@ class AssignTenantView(APIView):
         if room.status == 'occupied':
             return Response({'error': 'Phòng đã có người thuê'}, status=400)
 
-        username = request.data.get('username')
-        password = request.data.get('password', '123456')
-        phone    = request.data.get('phone', '')
-        move_in  = request.data.get('move_in')
+        name = request.data.get('name', '').strip()
+        phone = request.data.get('phone', '').strip()
+        id_card = request.data.get('id_card', '').strip()
+        move_in = request.data.get('move_in')
+        deposit = request.data.get('deposit', 0)
+        duration_months = request.data.get('duration_months', 12)
 
-        if User.objects.filter(username=username).exists():
-            return Response({'error': 'Username đã tồn tại'}, status=400)
+        if not phone:
+            return Response({'error': 'Số điện thoại là bắt buộc'}, status=400)
+        if not name:
+            return Response({'error': 'Tên người thuê là bắt buộc'}, status=400)
+        if not move_in:
+            return Response({'error': 'Ngày bắt đầu thuê là bắt buộc'}, status=400)
 
-        # Tạo tài khoản khách thuê (user thường, không phải staff)
-        tenant = User.objects.create_user(
-            username = username,
-            password = password,
-            phone    = phone,
-        )
+        # Kiểm tra xem User với phone hoặc username trùng phone đã tồn tại chưa
+        tenant = User.objects.filter(phone=phone).first()
+        if not tenant:
+            tenant = User.objects.filter(username=phone).first()
+
+        if tenant:
+            # Tái sử dụng tài khoản cũ, cập nhật thông tin
+            tenant.first_name = name
+            if id_card:
+                tenant.id_card = id_card
+            tenant.save()
+            password_info = "Sử dụng mật khẩu cũ"
+        else:
+            # Tạo tài khoản khách thuê mới (username chính là số điện thoại)
+            password_info = '123456'
+            tenant = User.objects.create_user(
+                username=phone,
+                password=password_info,
+                phone=phone,
+                first_name=name,
+                id_card=id_card
+            )
 
         RoomTenant.objects.create(
-            room      = room,
-            tenant    = tenant,
-            move_in   = move_in,
-            is_active = True
+            room=room,
+            tenant=tenant,
+            move_in=move_in,
+            deposit=deposit,
+            duration_months=duration_months,
+            is_active=True
         )
 
         room.status = 'occupied'
         room.save()
 
         return Response({
-            'message':  'Gán người thuê thành công',
-            'username': username,
-            'password': password,
-            'room':     room.name
+            'message': 'Gán người thuê thành công',
+            'username': tenant.username,
+            'password': password_info,
+            'room': room.name
         }, status=201)
 
 

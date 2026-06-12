@@ -19,12 +19,13 @@ class Room(models.Model):
 
 
 class RoomTenant(models.Model):
-    room      = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='current_tenant')
-    tenant    = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    move_in   = models.DateField()
-    move_out  = models.DateField(null=True, blank=True)
-    deposit   = models.DecimalField(max_digits=10, decimal_places=0, default=0)
-    is_active = models.BooleanField(default=True)
+    room            = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='current_tenant')
+    tenant          = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    move_in         = models.DateField()
+    move_out        = models.DateField(null=True, blank=True)
+    deposit         = models.DecimalField(max_digits=10, decimal_places=0, default=0)
+    duration_months = models.IntegerField(default=12)
+    is_active       = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.tenant.username} - {self.room.name}"
