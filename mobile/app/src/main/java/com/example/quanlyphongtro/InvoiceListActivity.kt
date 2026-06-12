@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.quanlyphongtro.network.SessionManager
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.text.NumberFormat
 import java.util.Calendar
 import java.util.Locale
@@ -42,10 +41,6 @@ class InvoiceListActivity : AppCompatActivity() {
         }
         findViewById<android.view.View>(R.id.btnSwitchRole).setOnClickListener { logoutAction() }
         findViewById<android.view.View>(R.id.cardAvatar).setOnClickListener { logoutAction() }
-
-        findViewById<FloatingActionButton>(R.id.fabCreateInvoice).setOnClickListener {
-            Toast.makeText(this, "Tính năng Tạo hóa đơn", Toast.LENGTH_SHORT).show()
-        }
     }
 
     private fun setupRecyclerView() {
@@ -70,15 +65,20 @@ class InvoiceListActivity : AppCompatActivity() {
     }
 
     private fun setupBottomNav() {
+        // Tab Trang chủ → quay về OwnerMainActivity
         findViewById<android.view.View>(R.id.navHome).setOnClickListener {
             startActivity(Intent(this, OwnerMainActivity::class.java))
             finish()
         }
-        findViewById<android.view.View>(R.id.navManage).setOnClickListener {
-            Toast.makeText(this, "Tính năng Quản lý", Toast.LENGTH_SHORT).show()
+        // Tab Quản lý → đang ở đây rồi, không làm gì
+        findViewById<android.view.View>(R.id.navManage).setOnClickListener { /* đang ở đây */ }
+        // Tab Thông báo → hiển thị thông báo
+        findViewById<android.view.View>(R.id.navNotify).setOnClickListener {
+            Toast.makeText(this, "Tính năng Thông báo đang phát triển", Toast.LENGTH_SHORT).show()
         }
+        // Tab Cài đặt
         findViewById<android.view.View>(R.id.navSettings).setOnClickListener {
-            Toast.makeText(this, "Tính năng Cài đặt", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Tính năng Cài đặt đang phát triển", Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -85,8 +85,12 @@ class OwnerMainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnCreateInvoice).setOnClickListener {
             startActivity(Intent(this, InvoiceListActivity::class.java))
         }
+        // Tab Quản lý → mở màn Hóa đơn
+        findViewById<android.view.View>(R.id.navManage).setOnClickListener {
+            startActivity(Intent(this, InvoiceListActivity::class.java))
+        }
         findViewById<android.view.View>(R.id.navNotify).setOnClickListener {
-            Toast.makeText(this, "Tính năng Thông báo", Toast.LENGTH_SHORT).show()
+            android.widget.Toast.makeText(this, "Tính năng Thông báo", android.widget.Toast.LENGTH_SHORT).show()
         }
 
         // Tải danh sách phòng từ database

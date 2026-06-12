@@ -323,18 +323,6 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabCreateInvoice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/bottomNavigation"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="12dp"
-        android:contentDescription="Tạo hóa đơn"
-        android:src="@drawable/ic_plus"
-        app:backgroundTint="@color/navy_dark"
-        app:tint="@color/white" />
 
     <LinearLayout
         android:id="@+id/bottomNavigation"
@@ -369,31 +357,9 @@
                 android:textSize="11sp" />
         </LinearLayout>
 
+        <!-- Tab 2: Quản lý (Active) -->
         <LinearLayout
             android:id="@+id/navManage"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/ic_manage"
-                app:tint="@color/gray_text" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Quản lý"
-                android:textColor="@color/gray_text"
-                android:textSize="11sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/navInvoice"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -410,7 +376,7 @@
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:src="@drawable/ic_invoice"
+                    android:src="@drawable/ic_manage"
                     app:tint="@color/navy_blue" />
             </FrameLayout>
 
@@ -418,12 +384,37 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="Hóa đơn"
+                android:text="Quản lý"
                 android:textColor="@color/navy_blue"
                 android:textSize="11sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
+        <!-- Tab 3: Thông báo -->
+        <LinearLayout
+            android:id="@+id/navNotify"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_bell"
+                app:tint="@color/gray_text" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Thông báo"
+                android:textColor="@color/gray_text"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- Tab 4: Cài đặt -->
         <LinearLayout
             android:id="@+id/navSettings"
             android:layout_width="0dp"

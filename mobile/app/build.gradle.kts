@@ -1,6 +1,41 @@
+import java.net.NetworkInterface
+import java.net.Inet4Address
+import java.util.Collections
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+}
+
+fun getLocalIpAddress(): String {
+    try {
+        val interfaces = Collections.list(NetworkInterface.getNetworkInterfaces())
+        for (netInt in interfaces) {
+            if (!netInt.isUp || netInt.isLoopback || netInt.isVirtual) continue
+            
+            val name = netInt.name.lowercase()
+            val displayName = netInt.displayName.lowercase()
+            
+            // Loại bỏ hoàn toàn card mạng ảo (VMware, VirtualBox, WSL, Hyper-V)
+            if (name.contains("vbox") || name.contains("vmnet") || name.contains("wsl") || name.contains("virtual") ||
+                displayName.contains("virtual") || displayName.contains("vmware") || displayName.contains("virtualbox") || displayName.contains("host-only") || displayName.contains("hyper-v")) {
+                continue
+            }
+            
+            val addresses = Collections.list(netInt.inetAddresses)
+            for (addr in addresses) {
+                if (addr is java.net.Inet4Address && !addr.isLoopbackAddress) {
+                    val ip = addr.hostAddress
+                    if (ip.startsWith("192.168.") || ip.startsWith("10.") || ip.startsWith("172.")) {
+                        return ip
+                    }
+                }
+            }
+        }
+    } catch (e: Exception) {
+        // Fallback
+    }
+    return "192.168.1.4" // IP mặc định cũ
 }
 
 android {
@@ -15,6 +50,14 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        
+        // Tự động dò và nhúng IP máy tính khi build
+        val localIp = getLocalIpAddress()
+        buildConfigField("String", "BACKEND_IP", "\"$localIp\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
