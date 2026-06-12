@@ -69,6 +69,7 @@ class InvoiceListActivity : AppCompatActivity() {
         findViewById<android.view.View>(R.id.navHome).setOnClickListener {
             startActivity(Intent(this, OwnerMainActivity::class.java))
             finish()
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
         }
         // Tab Quản lý → đang ở đây rồi, không làm gì
         findViewById<android.view.View>(R.id.navManage).setOnClickListener { /* đang ở đây */ }
@@ -97,5 +98,10 @@ class InvoiceListActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tvCollectedCount).text = "10 hóa đơn"
         findViewById<TextView>(R.id.tvUncollectedAmount).text = "${formatter.format(4_800_000)} đ"
         findViewById<TextView>(R.id.tvUncollectedCount).text = "5 hóa đơn"
+    }
+
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
     }
 }

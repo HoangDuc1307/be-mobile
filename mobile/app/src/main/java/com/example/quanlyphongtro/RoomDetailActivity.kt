@@ -119,12 +119,14 @@ class RoomDetailActivity : AppCompatActivity() {
                 putExtra("ROOM_ID", roomId)
             }
             editRoomLauncher.launch(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
     }
 
     override fun finish() {
         if (isModified) setResult(RESULT_OK)
         super.finish()
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
     }
 
     // ── Gọi API lấy chi tiết phòng ───────────────────────────────────

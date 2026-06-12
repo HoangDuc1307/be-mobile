@@ -74,6 +74,7 @@ class OwnerMainActivity : AppCompatActivity() {
                 putExtra("ROOM_ID", room.id)
             }
             addRoomLauncher.launch(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
         rvRooms.adapter = roomAdapter
 
@@ -81,13 +82,18 @@ class OwnerMainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnAddRoom).setOnClickListener {
             val intent = Intent(this, AddRoomActivity::class.java)
             addRoomLauncher.launch(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
         findViewById<Button>(R.id.btnCreateInvoice).setOnClickListener {
-            startActivity(Intent(this, InvoiceListActivity::class.java))
+            val intent = Intent(this, InvoiceListActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
         // Tab Quản lý → mở màn Hóa đơn
         findViewById<android.view.View>(R.id.navManage).setOnClickListener {
-            startActivity(Intent(this, InvoiceListActivity::class.java))
+            val intent = Intent(this, InvoiceListActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
         findViewById<android.view.View>(R.id.navNotify).setOnClickListener {
             android.widget.Toast.makeText(this, "Tính năng Thông báo", android.widget.Toast.LENGTH_SHORT).show()
