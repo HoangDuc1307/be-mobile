@@ -24,11 +24,4 @@
         android:fillColor="@android:color/transparent"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
-    <path
-        android:pathData="M4,4 L20,20"
-        android:strokeWidth="1.6"
-        android:strokeColor="#000000"
-        android:fillColor="@android:color/transparent"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
 </vector>
