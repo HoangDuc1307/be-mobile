@@ -2,6 +2,17 @@ from django.db import models
 from django.conf import settings
 from rooms.models import Room
 
+
+class BankInfo(models.Model):
+    bank_name      = models.CharField(max_length=100, default='Vietcombank')
+    account_number = models.CharField(max_length=50)
+    account_name   = models.CharField(max_length=100)
+    is_active      = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.bank_name} - {self.account_number}"
+
+
 class UnitPrice(models.Model):
     owner = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='unit_price')
     electricity_price = models.DecimalField(max_digits=10, decimal_places=0, default=3500)

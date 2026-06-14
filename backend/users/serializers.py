@@ -7,7 +7,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model  = User
-        fields = ['username', 'password', 'email', 'phone', 'first_name']
+        fields = ['username', 'password', 'email', 'phone', 'full_name']
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -15,7 +15,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             password = validated_data['password'],
             email    = validated_data.get('email', ''),
             phone    = validated_data.get('phone', ''),
-            first_name = validated_data.get('first_name', ''),
+            full_name = validated_data.get('full_name', ''),
         )
         return user
 
@@ -26,7 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model  = User
-        fields = ['id', 'username', 'email', 'phone', 'first_name', 'id_card', 'is_owner']
+        fields = ['id', 'username', 'email', 'phone', 'full_name', 'id_card', 'is_owner']
 
     def get_is_owner(self, obj):
         return obj.is_owner()
