@@ -16,6 +16,7 @@ class Room(models.Model):
     amenities   = models.TextField(blank=True, default='')
     description = models.TextField(blank=True)
     created_at  = models.DateTimeField(auto_now_add=True)
+    room_image  = models.ImageField(upload_to='rooms/', null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -29,6 +30,7 @@ class RoomTenant(models.Model):
     deposit         = models.DecimalField(max_digits=10, decimal_places=0, default=0)
     duration_months = models.IntegerField(default=12)
     is_active       = models.BooleanField(default=True)
+    contract_image  = models.ImageField(upload_to='contracts/', null=True, blank=True)
 
     def __str__(self):
         return f"{self.tenant.username} - {self.room.name}"

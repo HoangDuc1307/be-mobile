@@ -2,7 +2,9 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 from django.contrib.auth import authenticate
 from .models import User
 from .serializers import RegisterSerializer, UserSerializer
@@ -50,7 +52,7 @@ class TenantProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        return Response(UserSerializer(request.user).data)
+        return Response(UserSerializer(request.user, context={'request': request}).data)
 
     def patch(self, request):
         user = request.user
@@ -66,7 +68,34 @@ class TenantProfileView(APIView):
             user.set_password(new_pw)
 
         user.save()
-        return Response(UserSerializer(user).data)
+        return Response(UserSerializer(user, context={'request': request}).data)
+
+
+class UploadAvatarView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes     = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        avatar = request.FILES.get('avatar')
+        if not avatar:
+            return Response({'error': 'Vui lòng chọn ảnh'}, status=400)
+        request.user.avatar = avatar
+        request.user.save()
+        return Response(UserSerializer(request.user, context={'request': request}).data)
+
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data.get('refresh')
+            if refresh_token:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+        except TokenError:
+            pass
+        return Response({'message': 'Đăng xuất thành công'}, status=200)
 
 
 class TenantListView(APIView):

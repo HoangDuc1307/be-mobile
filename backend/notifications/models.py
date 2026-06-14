@@ -4,11 +4,12 @@ from django.conf import settings
 
 class Notification(models.Model):
     TYPE_CHOICES = [
-        ('payment_due',     'Nhắc thanh toán'),
-        ('payment_success', 'Thanh toán thành công'),
-        ('new_invoice',     'Hóa đơn mới'),
-        ('contract',        'Hợp đồng'),
-        ('system',          'Thông báo hệ thống'),
+        ('payment_due',      'Nhắc thanh toán'),
+        ('payment_success',  'Thanh toán thành công'),
+        ('payment_rejected', 'Thanh toán bị từ chối'),
+        ('new_invoice',      'Hóa đơn mới'),
+        ('contract',         'Hợp đồng'),
+        ('system',           'Thông báo hệ thống'),
     ]
 
     tenant = models.ForeignKey(

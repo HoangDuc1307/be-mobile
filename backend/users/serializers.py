@@ -22,11 +22,20 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     """Dùng để trả thông tin user về cho Android"""
-    is_owner = serializers.SerializerMethodField()
+    is_owner   = serializers.SerializerMethodField()
+    avatar_url = serializers.SerializerMethodField()
 
     class Meta:
         model  = User
-        fields = ['id', 'username', 'email', 'phone', 'full_name', 'id_card', 'is_owner']
+        fields = ['id', 'username', 'email', 'phone', 'full_name', 'id_card', 'is_owner', 'avatar_url']
 
     def get_is_owner(self, obj):
         return obj.is_owner()
+
+    def get_avatar_url(self, obj):
+        if not obj.avatar:
+            return None
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(obj.avatar.url)
+        return obj.avatar.url

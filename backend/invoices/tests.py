@@ -124,6 +124,25 @@ class InvoiceAPITests(APITestCase):
         self.assertEqual(tenant_contract.tenant, self.existing_tenant)
         self.assertEqual(tenant_contract.deposit, 2000000)
 
+    def test_assign_tenant_by_tenant_id(self):
+        url = reverse('assign-tenant', kwargs={'room_id': self.room.id})
+        data = {
+            'tenant_id': self.existing_tenant.id,
+            'name': 'Nguyen Van Tenant',
+            'phone': '0123456789',
+            'id_card': '123456789',
+            'move_in': '2026-06-03',
+            'deposit': 2500000,
+            'duration_months': 12,
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['tenant_id'], self.existing_tenant.id)
+        self.assertEqual(response.data['room_id'], self.room.id)
+
+        tenant_contract = RoomTenant.objects.get(room=self.room, is_active=True)
+        self.assertEqual(tenant_contract.tenant, self.existing_tenant)
+
     def test_invoice_creation_and_auto_calculation(self):
         # Thiết lập đơn giá trước
         UnitPrice.objects.create(

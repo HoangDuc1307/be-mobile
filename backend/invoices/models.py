@@ -43,6 +43,16 @@ class Invoice(models.Model):
     grand_total = models.DecimalField(max_digits=10, decimal_places=0)
 
     is_paid = models.BooleanField(default=False)
+
+    PAYMENT_STATUS_CHOICES = [
+        ('none',     'Chưa nộp'),
+        ('pending',  'Chờ duyệt'),
+        ('approved', 'Đã duyệt'),
+        ('rejected', 'Bị từ chối'),
+    ]
+    payment_status = models.CharField(max_length=10, choices=PAYMENT_STATUS_CHOICES, default='none')
+    payment_proof  = models.ImageField(upload_to='payment_proofs/', null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

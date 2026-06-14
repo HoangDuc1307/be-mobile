@@ -2,9 +2,11 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.parsers import MultiPartParser, FormParser
 from .models import Room, RoomTenant
 from .serializers import RoomSerializer, ContractSerializer
 from django.contrib.auth import get_user_model
+from notifications.models import Notification
 
 User = get_user_model()
 
@@ -20,7 +22,7 @@ class RoomListCreateView(APIView):
                 current_tenant__tenant=request.user,
                 current_tenant__is_active=True
             )
-        return Response(RoomSerializer(rooms, many=True).data)
+        return Response(RoomSerializer(rooms, many=True, context={'request': request}).data)
 
     def post(self, request):
         if not request.user.is_owner():
@@ -38,7 +40,7 @@ class AvailableRoomListView(APIView):
 
     def get(self, request):
         rooms = Room.objects.filter(status='available').order_by('name')
-        return Response(RoomSerializer(rooms, many=True).data)
+        return Response(RoomSerializer(rooms, many=True, context={'request': request}).data)
 
 
 class RoomDetailView(APIView):
@@ -49,7 +51,7 @@ class RoomDetailView(APIView):
             room = Room.objects.get(id=room_id)
         except Room.DoesNotExist:
             return Response({'error': 'Không tìm thấy phòng'}, status=404)
-        return Response(RoomSerializer(room).data)
+        return Response(RoomSerializer(room, context={'request': request}).data)
 
     def put(self, request, room_id):
         if not request.user.is_owner():
@@ -82,11 +84,10 @@ class TenantRoomView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        try:
-            room_tenant = RoomTenant.objects.select_related('room', 'tenant').get(
-                tenant=request.user, is_active=True
-            )
-        except RoomTenant.DoesNotExist:
+        room_tenant = RoomTenant.objects.select_related('room', 'tenant').filter(
+            tenant=request.user, is_active=True
+        ).order_by('-id').first()
+        if not room_tenant:
             return Response({'error': 'Bạn chưa được gán vào phòng nào'}, status=404)
 
         room = room_tenant.room
@@ -115,7 +116,7 @@ class TenantRoomView(APIView):
         }
 
         return Response({
-            'room':          RoomSerializer(room).data,
+            'room':          RoomSerializer(room, context={'request': request}).data,
             'unpaid_total':  str(unpaid_total),
             'unpaid_count':  unpaid_count,
             'landlord':      landlord,
@@ -128,11 +129,12 @@ class TenantContractView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        try:
-            room_tenant = RoomTenant.objects.get(tenant=request.user, is_active=True)
-        except RoomTenant.DoesNotExist:
+        room_tenant = RoomTenant.objects.filter(
+            tenant=request.user, is_active=True
+        ).order_by('-id').first()
+        if not room_tenant:
             return Response({'error': 'Bạn chưa có hợp đồng nào'}, status=404)
-        return Response(ContractSerializer(room_tenant).data)
+        return Response(ContractSerializer(room_tenant, context={'request': request}).data)
 
 
 class AssignTenantView(APIView):
@@ -169,6 +171,12 @@ class AssignTenantView(APIView):
             tenant = User.objects.filter(username=phone).first()
 
         if tenant:
+            existing = RoomTenant.objects.filter(tenant=tenant, is_active=True).first()
+            if existing:
+                return Response(
+                    {'error': f'Người thuê này đang thuê phòng {existing.room.name}. Vui lòng trả phòng cũ trước.'},
+                    status=400
+                )
             tenant.first_name = name
             if id_card:
                 tenant.id_card = id_card
@@ -189,6 +197,17 @@ class AssignTenantView(APIView):
         room.status = 'occupied'
         room.save()
 
+        Notification.objects.create(
+            tenant=tenant,
+            title='Hợp đồng thuê phòng',
+            body=(
+                f'Chào {name}, bạn đã được ký hợp đồng thuê phòng {room.name}. '
+                f'Ngày bắt đầu: {move_in}. Thời hạn: {duration_months} tháng. '
+                f'Tiền cọc: {int(deposit):,} VNĐ.'
+            ),
+            notif_type='contract',
+        )
+
         return Response({
             'message':  'Gán người thuê thành công',
             'username': tenant.username,
@@ -207,15 +226,24 @@ class RemoveTenantView(APIView):
             room = Room.objects.get(id=room_id)
         except Room.DoesNotExist:
             return Response({'error': 'Không tìm thấy phòng'}, status=404)
-        try:
-            room_tenant = RoomTenant.objects.get(room=room, is_active=True)
-        except RoomTenant.DoesNotExist:
+        room_tenant = RoomTenant.objects.filter(room=room, is_active=True).order_by('-id').first()
+        if not room_tenant:
             return Response({'error': 'Phòng không có người thuê'}, status=400)
+
+        tenant = room_tenant.tenant
         room_tenant.is_active = False
         room_tenant.move_out  = request.data.get('move_out')
         room_tenant.save()
         room.status = 'available'
         room.save()
+
+        Notification.objects.create(
+            tenant=tenant,
+            title='Kết thúc hợp đồng thuê phòng',
+            body=f'Hợp đồng thuê phòng {room.name} của bạn đã kết thúc. Cảm ơn bạn đã sử dụng dịch vụ.',
+            notif_type='contract',
+        )
+
         return Response({'message': 'Trả phòng thành công'}, status=200)
 
 
@@ -239,9 +267,8 @@ class TransferTenantView(APIView):
         if new_room.status == 'occupied':
             return Response({'error': 'Phòng mới đã có người thuê'}, status=400)
 
-        try:
-            room_tenant = RoomTenant.objects.get(room=current_room, is_active=True)
-        except RoomTenant.DoesNotExist:
+        room_tenant = RoomTenant.objects.filter(room=current_room, is_active=True).order_by('-id').first()
+        if not room_tenant:
             return Response({'error': 'Phòng hiện tại không có người thuê'}, status=400)
 
         room_tenant.is_active = False
@@ -263,3 +290,61 @@ class TransferTenantView(APIView):
             'old_room': current_room.name,
             'new_room': new_room.name,
         }, status=200)
+
+
+class UploadRoomImageView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes     = [MultiPartParser, FormParser]
+
+    def post(self, request, room_id):
+        if not request.user.is_owner():
+            return Response({'error': 'Không có quyền'}, status=403)
+        try:
+            room = Room.objects.get(id=room_id)
+        except Room.DoesNotExist:
+            return Response({'error': 'Không tìm thấy phòng'}, status=404)
+        image = request.FILES.get('room_image')
+        if not image:
+            return Response({'error': 'Vui lòng chọn ảnh'}, status=400)
+        room.room_image = image
+        room.save()
+        return Response(RoomSerializer(room, context={'request': request}).data)
+
+
+class RoomContractView(APIView):
+    """GET hợp đồng của một phòng cụ thể — dùng cho admin."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, room_id):
+        if not request.user.is_owner():
+            return Response({'error': 'Không có quyền'}, status=403)
+        try:
+            room = Room.objects.get(id=room_id)
+        except Room.DoesNotExist:
+            return Response({'error': 'Không tìm thấy phòng'}, status=404)
+        room_tenant = RoomTenant.objects.filter(room=room, is_active=True).order_by('-id').first()
+        if not room_tenant:
+            return Response({'error': 'Phòng không có hợp đồng'}, status=404)
+        return Response(ContractSerializer(room_tenant, context={'request': request}).data)
+
+
+class UploadContractImageView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes     = [MultiPartParser, FormParser]
+
+    def post(self, request, room_id):
+        if not request.user.is_owner():
+            return Response({'error': 'Không có quyền'}, status=403)
+        try:
+            room = Room.objects.get(id=room_id)
+        except Room.DoesNotExist:
+            return Response({'error': 'Không tìm thấy phòng'}, status=404)
+        room_tenant = RoomTenant.objects.filter(room=room, is_active=True).order_by('-id').first()
+        if not room_tenant:
+            return Response({'error': 'Phòng không có hợp đồng'}, status=404)
+        image = request.FILES.get('contract_image')
+        if not image:
+            return Response({'error': 'Vui lòng chọn ảnh'}, status=400)
+        room_tenant.contract_image = image
+        room_tenant.save()
+        return Response(ContractSerializer(room_tenant, context={'request': request}).data)
